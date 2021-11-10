@@ -3,7 +3,8 @@
 
 from googleapiclient.discovery import build
 import json
-from conf import token 
+from conf import token
+from common import in_db, store_in_db
 
 with build('youtube', 'v3', developerKey=token) as youtube:
     response = youtube.search().list(
@@ -13,6 +14,11 @@ with build('youtube', 'v3', developerKey=token) as youtube:
             part='id, snippet'
     ).execute()
     for video in response['items']:
-        print(video['snippet']['title'])
-        #print(video['snippet']['description'])
-        print(video['id']['videoId'])
+        title = video['snippet']['title']
+        vid = video['id']['videoId']
+
+        if not in_db(vid):
+            #TODO send to TG
+            print("{} - {}".format(vid, title))
+            store_in_db(vid)
+
